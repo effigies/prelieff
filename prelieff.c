@@ -30,6 +30,7 @@
 #include "arff.h"
 #include "java.h"
 #include "index_sort.h"
+#include "util.h"
 #ifndef NO_MPI
 #include "mpi.h"
 #endif
@@ -224,7 +225,7 @@ void buildEvaluator (arff_info_t * data, double *weights)
 
 	if (m_weightByDistance)	// set up the rank based weights
 	{
-		m_weightsByRank = (double *) malloc (sizeof (double) * m_Knn);
+		m_weightsByRank = (double *) malloc_dbg (1, sizeof (double) * m_Knn);
 
 		for (i = 0; i < m_Knn; i++) {
 			m_weightsByRank[i] =
@@ -237,11 +238,13 @@ void buildEvaluator (arff_info_t * data, double *weights)
 #ifdef NO_MPI
 	m_weights = m_finalWeights = weights;
 #else
-	m_weights = (double *) malloc (sizeof (double) * m_numAttribs);
+	m_weights = (double *) malloc_dbg (2, sizeof (double) * m_numAttribs);
 	m_finalWeights = weights;
 #endif
 
-	m_attributeRank = (int *) malloc (sizeof (int) * m_numAttribs);
+
+	m_attributeRank = (int *) malloc_dbg (3, sizeof (int) * m_numAttribs);
+	
 	for (i = 0; i < m_numAttribs; i++) {
 		m_attributeRank[i] = i;
 	}
@@ -252,16 +255,16 @@ void buildEvaluator (arff_info_t * data, double *weights)
 	}
 	// num classes (1 for numeric class) knn neighbours, 
 	// and 0 = distance, 1 = instance index
-	m_karray = (double ***) malloc (sizeof (double **) * m_numClasses);
+	m_karray = (double ***) malloc_dbg (4, sizeof (double **) * m_numClasses);
 	for (i = 0; i < m_numClasses; i++) {
-		m_karray[i] = (double **) malloc (sizeof (double *) * m_Knn);
+		m_karray[i] = (double **) malloc_dbg (5, sizeof (double *) * m_Knn);
 		for (j = 0; j < m_Knn; j++) {
 			m_karray[i][j] =
-				(double *) malloc (sizeof (double) * 2);
+				(double *) malloc_dbg (6, sizeof (double) * 2);
 		}
 	}
 
-	m_classProbs = (double *) malloc (sizeof (double) * m_numClasses);
+	m_classProbs = (double *) malloc_dbg (7, sizeof (double) * m_numClasses);
 
 	for (i = 0; i < m_numInstances; i++) {
 		m_classProbs[m_instances[i]->data[m_classIndex].ival]++;
@@ -271,23 +274,23 @@ void buildEvaluator (arff_info_t * data, double *weights)
 		m_classProbs[i] /= m_numInstances;
 	}
 
-	m_worst = (double *) malloc (sizeof (double) * m_numClasses);
-	m_index = (int *) malloc (sizeof (int) * m_numClasses);
-	m_stored = (int *) malloc (sizeof (int) * m_numClasses);
-	m_minArray = (double *) malloc (sizeof (double) * m_numAttribs);
-	m_maxArray = (double *) malloc (sizeof (double) * m_numAttribs);
+	m_worst = (double *) malloc_dbg (8, sizeof (double) * m_numClasses);
+	m_index = (int *) malloc_dbg (9, sizeof (int) * m_numClasses);
+	m_stored = (int *) malloc_dbg (10, sizeof (int) * m_numClasses);
+	m_minArray = (double *) malloc_dbg (11, sizeof (double) * m_numAttribs);
+	m_maxArray = (double *) malloc_dbg (12, sizeof (double) * m_numAttribs);
 
-	tempDistClass = (double *) malloc (sizeof (double) * m_numAttribs);
-	tempDistAtt = (double *) malloc (sizeof (double) * m_numAttribs);
-	tempSortedClass = (int *) malloc (sizeof (int) * m_numAttribs);
-	tempSortedAtt = (int **) malloc (sizeof (int *) * m_numClasses);
-	distNormAtt = (double *) malloc (sizeof (double) * m_numClasses);
+	tempDistClass = (double *) malloc_dbg (13, sizeof (double) * m_numAttribs);
+	tempDistAtt = (double *) malloc_dbg (14, sizeof (double) * m_numAttribs);
+	tempSortedClass = (int *) malloc_dbg (15, sizeof (int) * m_numAttribs);
+	tempSortedAtt = (int **) malloc_dbg (16, sizeof (int *) * m_numClasses);
+	distNormAtt = (double *) malloc_dbg (17, sizeof (double) * m_numClasses);
 
 	for (i = 0; i < m_numClasses; i++) {
 		if (i != m_classIndex)	// already done cl
 		{
 			tempSortedAtt[i] =
-				(int *) malloc (sizeof (int) * m_numAttribs);
+				(int *) malloc_dbg (18, sizeof (int) * m_numAttribs);
 		}
 	}
 

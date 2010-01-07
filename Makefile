@@ -1,7 +1,7 @@
 CC=mpicc
 CFLAGS=-Wall
 LDFLAGS=-lm
-SOURCES=main.c arff.c prelieff.c index_sort.c
+SOURCES=main.c arff.c prelieff.c index_sort.c util.o
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=prelieff
 
