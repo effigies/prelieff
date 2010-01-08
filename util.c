@@ -7,9 +7,11 @@ void *malloc_dbg(int n, int x) {
 	void *tmp = malloc(x);
 	if (tmp) {
 		printf("SUCCESS\n");
+		fflush(stdout);
 	} else {
 		printf("FAILURE\n");
-		exit(1);
+		fflush(stdout);
+		//exit(1);
 	}
 	return tmp;
 }
