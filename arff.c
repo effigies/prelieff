@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "arff.h"
+#include "util.h"
 
 #define SUCCESS(x)     ((x) == 0)
 #define FAIL(x)        ((x) != 0)
@@ -223,7 +224,7 @@ arff_info_t *read_arff (char *filename, char *class_attribute_name)
 	} else {
 		fseek (in, 0, SEEK_END);
 		size = ftell (in);
-		buf = (char *) malloc (size + 1);
+		buf = (char *) malloc_dbg (25, size + 1);
 		fseek (in, 0, SEEK_SET);
 		size = fread (buf, 1, size, in);
 
@@ -352,7 +353,7 @@ int get_lineno ()
 
 arff_info_t *init (char *class_attribute_name)
 {
-	arff_info_t *info = (arff_info_t *) malloc (sizeof (arff_info_t));
+	arff_info_t *info = (arff_info_t *) malloc_dbg (26, sizeof (arff_info_t));
 	info->relation_name = NULL;
 	info->num_attributes = 0;
 	info->attributes = NULL;
@@ -522,7 +523,7 @@ parse_state_t parse_relation1 (token_t token, char *name, arff_info_t * info)
 		sprintf (error_string, "unexpected token: %s",
 			 name == NULL ? token_names[token] : name);
 	} else {
-		info->relation_name = (char *) malloc (strlen (name) + 1);
+		info->relation_name = (char *) malloc_dbg (27, strlen (name) + 1);
 		strcpy (info->relation_name, name);
 		r = PARSE_STATE_GET_NEWLINE;
 		DEBUGMSG (("  set relation name = %s\n", name));
@@ -555,7 +556,7 @@ parse_state_t parse_attribute2_nominal (token_t token, char *name,
 					arff_info_t * info)
 {
 	curr_attr->type = ATTR_NOMINAL;
-	curr_attr->nom_info = (nom_info_t *) malloc (sizeof (nom_info_t));
+	curr_attr->nom_info = (nom_info_t *) malloc_dbg (28, sizeof (nom_info_t));
 	curr_attr->nom_info->num_classes = 0;
 	curr_attr->nom_info->first = NULL;
 	DEBUGMSG (("  set attribute type = ATTR_NOMINAL\n"));
@@ -635,14 +636,14 @@ void parse_end (arff_info_t * info)
 	attr_info_t *attr_info;
 	instance_t *instance;
 	info->attributes =
-		(attr_info_t **) malloc (sizeof (attr_info_t *) *
+		(attr_info_t **) malloc_dbg (29, sizeof (attr_info_t *) *
 					 info->num_attributes);
 	for (i = 0, attr_info = first_attr; attr_info != NULL;
 	     attr_info = attr_info->next, i++) {
 		info->attributes[i] = attr_info;
 	}
 	info->instances =
-		(instance_t **) malloc (sizeof (instance_t *) *
+		(instance_t **) malloc_dbg (30, sizeof (instance_t *) *
 					info->num_instances);
 	for (i = 0, instance = first_inst; instance != NULL;
 	     instance = instance->next, i++) {
@@ -652,9 +653,9 @@ void parse_end (arff_info_t * info)
 
 attr_info_t *add_attribute (arff_info_t * info, char *name)
 {
-	attr_info_t *r = (attr_info_t *) malloc (sizeof (attr_info_t)), *x;
+	attr_info_t *r = (attr_info_t *) malloc_dbg (31, sizeof (attr_info_t)), *x;
 
-	r->name = (char *) malloc (strlen (name) + 1);
+	r->name = (char *) malloc_dbg (32, strlen (name) + 1);
 	strcpy (r->name, name);
 	r->type = ATTR_NUM_TYPES;
 	r->nom_info = NULL;
@@ -681,8 +682,8 @@ attr_info_t *add_attribute (arff_info_t * info, char *name)
 
 void add_nominal_class (nom_info_t * info, char *name)
 {
-	nom_val_t *r = (nom_val_t *) malloc (sizeof (nom_val_t)), *x;
-	r->name = (char *) malloc (strlen (name) + 1);
+	nom_val_t *r = (nom_val_t *) malloc_dbg (33, sizeof (nom_val_t)), *x;
+	r->name = (char *) malloc_dbg (34, strlen (name) + 1);
 	strcpy (r->name, name);
 	r->val = info->num_classes++;
 	r->next = NULL;
@@ -700,8 +701,8 @@ void add_nominal_class (nom_info_t * info, char *name)
 
 instance_t *add_instance (arff_info_t * info)
 {
-	instance_t *r = (instance_t *) malloc (sizeof (instance_t)), *x;
-	r->data = (data_t *) malloc (sizeof (data_t) * info->num_attributes);
+	instance_t *r = (instance_t *) malloc_dbg (35, sizeof (instance_t)), *x;
+	r->data = (data_t *) malloc_dbg (36, sizeof (data_t) * info->num_attributes);
 	r->next = NULL;
 
 	if (first_inst == NULL) {

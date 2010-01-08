@@ -11,7 +11,7 @@ void *malloc_dbg(int n, int x) {
 	} else {
 		printf("FAILURE\n");
 		fflush(stdout);
-		//exit(1);
+		exit(1);
 	}
 	return tmp;
 }
