@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "util.h"
 
-#ifdef NO_MPI
+#if 0
+/* #ifdef NO_MPI */
 void *malloc_dbg(int n, int x) {
 	printf("%d Allocating %d bytes... ", n, x);
 	void *tmp = malloc(x);

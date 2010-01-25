@@ -18,4 +18,4 @@ nompi: CFLAGS+=-DNO_MPI
 nompi: all
 	
 clean:
-	rm *.o
+	rm *.o prelieff
