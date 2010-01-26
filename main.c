@@ -13,11 +13,10 @@
 int main (int argc, char **argv)
 {
 	arff_info_t *info;
-	arff_info_t output;
 	int me, selected, version;
 	double *weights;
 	int *indexes;
-	int i, j, k;
+	int i, j;
 	FILE *outfile;
 
 	if (argc < 6) {
