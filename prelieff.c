@@ -119,7 +119,8 @@ static double *distNormAtt;
 static int *m_attributeRank;
 static int m_numExcludedAttributes;
 
-static int m_version = 1;	// version of the algorithm to use
+static int m_version = 0;	// version of the algorithm to use
+int m_difference = 0;
 
 void updateMinMax (instance_t * instance);
 void findKHitMiss (int instNum);
@@ -183,6 +184,11 @@ double getTotalTime ()
 void setVersion (int version)
 {
 	m_version = version;
+}
+
+void setDifference (int difference)
+{
+	m_difference = difference;
 }
 
 /**
@@ -340,7 +346,7 @@ void buildEvaluator (arff_info_t * data, double *weights)
 			updateWeightsDiscreteClass (z);
 		}
 
-		if (m_version == 2) {
+		if (m_version == 1) {
 #ifndef NO_MPI
 			MPI_Allreduce (m_weights, m_finalWeights,
 				       m_numAttribs, MPI_DOUBLE, MPI_SUM,
@@ -360,7 +366,7 @@ void buildEvaluator (arff_info_t * data, double *weights)
 	}
 
 #ifndef NO_MPI
-	if (m_version != 2) {
+	if (m_version != 1) {
 		MPI_Reduce (m_weights, m_finalWeights, m_numAttribs,
 			    MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 	}
@@ -498,7 +504,13 @@ double difference (int index, data_t *dat1, data_t *dat2)
 	double x;
 	switch (m_attributes[index]->type) {
 	case ATTR_NOMINAL:
-		return (dat1[index].ival != dat2[index].ival) ? 1 : 0;
+		if( m_difference == 0 ) {
+			return (dat1[index].ival != dat2[index].ival);
+		} else {
+			// This option is for when your nominal values differ by their distance
+			// in the value list. e.g. AA Aa aa
+			return abs(dat1[index].ival - dat2[index].ival);
+		}
 	case ATTR_NUMERIC:
 		// If attribute is numeric
 		x = norm (dat1[index].fval, index) - norm (dat2[index].fval, index);

@@ -20,5 +20,6 @@ void setWeightByDistance (boolean b);
 boolean getWeightByDistance ();
 double getTotalTime ();
 void setVersion (int version);
+void setDifference (int);
 
 #endif

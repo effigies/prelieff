@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <argp.h>
 #include "arff.h"
 #include "prelieff.h"
 #include "java.h"
@@ -10,19 +11,85 @@
 #include "mpi.h"
 #endif
 
+const char *argp_program_version = "prelieff 0.2";
+const char *argp_program_bug_address = "<chris-johnson@utulsa.edu>";
+
+#ifdef NO_MPI
+static char doc[] = "prelieff - Relief-F";
+#else
+static char doc[] = "prelieff - Parallel Relief-F with MPI";
+#endif
+
+static char args_doc[] = "ARFF_FILE RANK_FILE";
+
+static struct argp_option options[] = {
+	{"algorithm",	'a',	"INT",	0,	"Algorithm version (0 = P (Default); 1 = G)"},
+	{"class",	'c',	"NAME",	0,	"Class attribute name (Default: \"Class\")"},
+	{"difference",	'd',	"INT",	0,	"Difference metric (0 = genotype (Default); 1 = allele-sharing)"},
+	{ 0 }
+};
+
+struct arguments {
+	char *args[2];
+	int algorithm, difference;
+	char *class;
+};
+
+static error_t
+parse_opt (int key, char *arg, struct argp_state *state) {
+	struct arguments *arguments = state->input;
+
+	switch (key) {
+		case 'a':
+			arguments->algorithm = atoi( arg );
+			break;
+		case 'c':
+			arguments->class = arg;
+			break;
+		case 'd':
+			arguments->difference = atoi( arg );
+			break;
+
+		case ARGP_KEY_ARG:
+			if (state->arg_num >= 2)
+				argp_usage( state );
+
+			arguments->args[state->arg_num] = arg;
+			break;
+
+		case ARGP_KEY_END:
+			if (state->arg_num < 2)
+				argp_usage( state );
+
+			break;
+
+		default:
+			return ARGP_ERR_UNKNOWN;
+	}
+
+	return 0;
+}
+
+static struct argp argp = { options, parse_opt, args_doc, doc };
+
 int main (int argc, char **argv)
 {
 	arff_info_t *info;
-	int me, selected, version;
+	int me;
 	double *weights;
 	int *indexes;
-	int i, j;
+	int i;
 	FILE *outfile;
 
-	if (argc < 6) {
-		printf ("Usage: prelieff <arff file> <output file> <class name> <number of attributes to select> <algorithm version>\n");
+	struct arguments arguments;
+
+	arguments.algorithm = 0;
+	arguments.difference = 0;
+	arguments.class = "Class";
+
+	if (argp_parse( &argp, argc, argv, 0, 0, &arguments))
 		return 1;
-	}
+
 #ifdef NO_MPI
 	me = 0;
 #else
@@ -30,15 +97,13 @@ int main (int argc, char **argv)
 	MPI_Comm_rank (MPI_COMM_WORLD, &me);
 #endif
 
-	outfile = fopen(argv[2], "w");
+	outfile = fopen(arguments.args[1], "w");
 	if (outfile == NULL) {
-		fprintf (stderr, "Could not open file for writing: %s\n", argv[2]);
+		fprintf (stderr, "Could not open file for writing: %s\n", arguments.args[1]);
 		return 1;
 	}
 
-	info = read_arff (argv[1], argv[3]);
-	selected = atoi (argv[4]);
-	version = atoi (argv[5]);
+	info = read_arff (arguments.args[0], arguments.class);
 
 	if (info == NULL) {
 		fprintf (stderr, "%s, line %i\n", get_last_error (), get_lineno ());
@@ -52,7 +117,8 @@ int main (int argc, char **argv)
 	setNumNeighbours (10);
 	setWeightByDistance (true);
 	setSigma (2);
-	setVersion (version);
+	setVersion (arguments.algorithm);
+	setDifference (arguments.difference);
 
 	buildEvaluator (info, weights);
 	if (me == 0) {
@@ -60,8 +126,7 @@ int main (int argc, char **argv)
 			(int *) malloc_dbg (20, sizeof (int) * info->num_attributes);
 		index_sort (indexes, weights, info->num_attributes);
 
-		for (j = 0; j < selected; j++) {
-			i = info->num_attributes - j - 1;
+		for (i = info->num_attributes - 1; i >= 0; i--) {
 			fprintf (outfile, "%-30s%-10.3f\n",
 				info->attributes[indexes[i]]->name,
 				evaluateAttribute (indexes[i]));
