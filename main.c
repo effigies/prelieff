@@ -127,11 +127,10 @@ int main (int argc, char **argv)
 		index_sort (indexes, weights, info->num_attributes);
 
 		for (i = info->num_attributes - 1; i >= 0; i--) {
-			fprintf (outfile, "%-30s%-10.3f\n",
+			fprintf (outfile, "%s,%.3f\n",
 				info->attributes[indexes[i]]->name,
 				evaluateAttribute (indexes[i]));
 		}
-		fprintf (outfile, "\n");
 		free (indexes);
 	}
 
