@@ -1,0 +1,13 @@
+2010.03.10
+	Updated argument handling
+	Added option for allele sharing difference metric
+2010.01.25
+	Turn off debugging for now
+2010.01.08
+	Further malloc debugging
+2010.01.07
+	Begin versioning code
+	indent -bbb -bap -br -brs -cdw -ce -cs -i8 -lp -ut -npsl
+	Added malloc debugging for nompi compilations
+2009.12.02
+	Received code from Mike Slavik (Florida Atlantic University)
