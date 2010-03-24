@@ -231,7 +231,8 @@ void buildEvaluator (arff_info_t * data, double *weights)
 
 	if (m_weightByDistance)	// set up the rank based weights
 	{
-		m_weightsByRank = (double *) malloc_dbg (1, sizeof (double) * m_Knn);
+		m_weightsByRank =
+			(double *) malloc_dbg (1, sizeof (double) * m_Knn);
 
 		for (i = 0; i < m_Knn; i++) {
 			m_weightsByRank[i] =
@@ -250,7 +251,7 @@ void buildEvaluator (arff_info_t * data, double *weights)
 
 
 	m_attributeRank = (int *) malloc_dbg (3, sizeof (int) * m_numAttribs);
-	
+
 	for (i = 0; i < m_numAttribs; i++) {
 		m_attributeRank[i] = i;
 	}
@@ -261,16 +262,21 @@ void buildEvaluator (arff_info_t * data, double *weights)
 	}
 	// num classes (1 for numeric class) knn neighbours, 
 	// and 0 = distance, 1 = instance index
-	m_karray = (double ***) malloc_dbg (4, sizeof (double **) * m_numClasses);
+	m_karray =
+		(double ***) malloc_dbg (4,
+					 sizeof (double **) * m_numClasses);
 	for (i = 0; i < m_numClasses; i++) {
-		m_karray[i] = (double **) malloc_dbg (5, sizeof (double *) * m_Knn);
+		m_karray[i] =
+			(double **) malloc_dbg (5, sizeof (double *) * m_Knn);
 		for (j = 0; j < m_Knn; j++) {
 			m_karray[i][j] =
-				(double *) malloc_dbg (6, sizeof (double) * 2);
+				(double *) malloc_dbg (6,
+						       sizeof (double) * 2);
 		}
 	}
 
-	m_classProbs = (double *) malloc_dbg (7, sizeof (double) * m_numClasses);
+	m_classProbs =
+		(double *) malloc_dbg (7, sizeof (double) * m_numClasses);
 
 	for (i = 0; i < m_numInstances; i++) {
 		m_classProbs[m_instances[i]->data[m_classIndex].ival]++;
@@ -283,20 +289,29 @@ void buildEvaluator (arff_info_t * data, double *weights)
 	m_worst = (double *) malloc_dbg (8, sizeof (double) * m_numClasses);
 	m_index = (int *) malloc_dbg (9, sizeof (int) * m_numClasses);
 	m_stored = (int *) malloc_dbg (10, sizeof (int) * m_numClasses);
-	m_minArray = (double *) malloc_dbg (11, sizeof (double) * m_numAttribs);
-	m_maxArray = (double *) malloc_dbg (12, sizeof (double) * m_numAttribs);
+	m_minArray =
+		(double *) malloc_dbg (11, sizeof (double) * m_numAttribs);
+	m_maxArray =
+		(double *) malloc_dbg (12, sizeof (double) * m_numAttribs);
 
-	tempDistClass = (double *) malloc_dbg (13, sizeof (double) * m_numAttribs);
-	tempDistAtt = (double *) malloc_dbg (14, sizeof (double) * m_numAttribs);
-	tempSortedClass = (int *) malloc_dbg (15, sizeof (int) * m_numAttribs);
-	tempSortedAtt = (int **) malloc_dbg (16, sizeof (int *) * m_numClasses);
-	distNormAtt = (double *) malloc_dbg (17, sizeof (double) * m_numClasses);
+	tempDistClass =
+		(double *) malloc_dbg (13, sizeof (double) * m_numAttribs);
+	tempDistAtt =
+		(double *) malloc_dbg (14, sizeof (double) * m_numAttribs);
+	tempSortedClass =
+		(int *) malloc_dbg (15, sizeof (int) * m_numAttribs);
+	tempSortedAtt =
+		(int **) malloc_dbg (16, sizeof (int *) * m_numClasses);
+	distNormAtt =
+		(double *) malloc_dbg (17, sizeof (double) * m_numClasses);
 
 	for (i = 0; i < m_numClasses; i++) {
 		if (i != m_classIndex)	// already done cl
 		{
 			tempSortedAtt[i] =
-				(int *) malloc_dbg (18, sizeof (int) * m_numAttribs);
+				(int *) malloc_dbg (18,
+						    sizeof (int) *
+						    m_numAttribs);
 		}
 	}
 
@@ -486,8 +501,8 @@ void updateMinMax (instance_t * instance)
 					if (instance->data[j].fval >
 					    m_maxArray[j]) {
 						m_maxArray[j] =
-							instance->data[j].
-							fval;
+							instance->
+							data[j].fval;
 					}
 				}
 			}
@@ -499,21 +514,22 @@ void updateMinMax (instance_t * instance)
   * Computes the difference between two given attribute
   * values.
   */
-double difference (int index, data_t *dat1, data_t *dat2)
+double difference (int index, data_t * dat1, data_t * dat2)
 {
 	double x;
 	switch (m_attributes[index]->type) {
 	case ATTR_NOMINAL:
-		if( m_difference == 0 ) {
+		if (m_difference == 0) {
 			return (dat1[index].ival != dat2[index].ival);
 		} else {
 			// This option is for when your nominal values differ by their distance
 			// in the value list. e.g. AA Aa aa
-			return abs(dat1[index].ival - dat2[index].ival);
+			return abs (dat1[index].ival - dat2[index].ival);
 		}
 	case ATTR_NUMERIC:
 		// If attribute is numeric
-		x = norm (dat1[index].fval, index) - norm (dat2[index].fval, index);
+		x = norm (dat1[index].fval, index) - norm (dat2[index].fval,
+							   index);
 		return x >= 0 ? x : -x;
 	default:
 		return 0;
@@ -616,9 +632,7 @@ void updateWeightsDiscreteClass (int instNum)
 			}
 
 			i = k;
-			temp_diff =
-				difference (k, inst->data,
-					    cmp->data);
+			temp_diff = difference (k, inst->data, cmp->data);
 
 			if (m_weightByDistance) {
 				temp_diff *=
