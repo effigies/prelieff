@@ -148,7 +148,7 @@ int main (int argc, char **argv)
 			(int *) malloc_dbg (20, sizeof (int) * info->num_attributes);
 		index_sort (indexes, weights, info->num_attributes);
 
-		for (i = info->num_attributes - 1; i >= prune; i--) {
+		for (i = 0; i <= info->num_attributes - prune; i++) {
 			fprintf (outfile, "%s,%.3f\n",
 				info->attributes[indexes[i]]->name,
 				evaluateAttribute (indexes[i]));

@@ -7,7 +7,7 @@ int compindex (const void *p1, const void *p2)
 {
 	double x1 = m_sortArray[*(int *) p1];
 	double x2 = m_sortArray[*(int *) p2];
-	return (x1 < x2) ? -1 : ((x1 == x2) ? 0 : 1);
+	return (x1 < x2) ? 1 : ((x1 == x2) ? 0 : -1);
 }
 
 void index_sort (int *index, double *x, int size)
