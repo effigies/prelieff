@@ -142,7 +142,7 @@ int main (int argc, char **argv)
 		return 1;
 	}
 
-	if (arguments.prune[strlen (arguments.prune + 1) - 1] == '%') {
+	if (arguments.prune[strlen (arguments.prune) - 1] == '%') {
 		prune = (int) ((atof (arguments.prune) *
 				info->num_attributes) / 100);
 	} else {
