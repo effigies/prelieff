@@ -599,8 +599,9 @@ parse_state_t parse_data (token_t token, char *name, arff_info_t * info)
 			for (x = curr_attr->nom_info->first; x != NULL;
 			     x = x->next) {
 				if (!strcmp (name, x->name)) {
-					curr_instance->data[curr_data++].
-						ival = x->val;
+					curr_instance->
+						data[curr_data++].ival =
+						x->val;
 					DEBUGMSG (("  add nominal data, val = %s, index = %i\n", x->name, x->val));
 					break;
 				}

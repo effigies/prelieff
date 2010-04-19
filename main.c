@@ -219,6 +219,15 @@ int main (int argc, char **argv)
 							 sizeof
 							 (attr_info_t));
 
+			if (output.attributes == NULL) {
+				fprintf (stderr,
+					 "Could not allocate %d bytes for output.attributes.",
+					 (retained +
+					  1) * (sizeof (attr_info_t)));
+
+				return 1;
+			}
+
 			/* We want to copy the retained attributes.
 			 *
 			 * Since these are more or less immutable, we don't need to
@@ -233,28 +242,59 @@ int main (int argc, char **argv)
 
 			output.instances =
 				(instance_t **) calloc (info->num_instances,
-							sizeof (attr_info_t));
+							sizeof (instance_t
+								*));
+
+			if (output.instances == NULL) {
+				fprintf (stderr,
+					 "Could not allocate %d bytes for output.instances.",
+					 (info->num_instances) *
+					 (sizeof (instance_t *)));
+
+				return 1;
+			}
 
 			/* Populate the table, sorting attributes by rank */
 			for (i = 0; i < info->num_instances; i++) {
 				int j;
+
 				output.instances[i] =
 					(instance_t *) calloc (1,
 							       sizeof
 							       (instance_t));
+
+				if (output.instances[i] == NULL) {
+					fprintf (stderr,
+						 "Could not allocate %d bytes for output.instances[%d].",
+						 (sizeof (instance_t)), i);
+
+					return 1;
+				}
+
 				output.instances[i]->data =
 					(data_t *) calloc (retained + 1,
 							   sizeof (data_t));
 
+				if (output.instances[i] == NULL) {
+					fprintf (stderr,
+						 "Could not allocate %d bytes for output.instances[%d].data.",
+						 (retained +
+						  1) * (sizeof (instance_t)),
+						 i);
+
+					return 1;
+				}
+
+
 				for (j = 0; j < retained; j++)
 					output.instances[i]->data[j].ival =
-						info->
-						instances[i]->data[indices
-								   [j]].ival;
+						info->instances[i]->
+						data[indices[j]].ival;
 
 				output.instances[i]->data[retained].ival =
-					info->instances[i]->
-					data[info->class_index].ival;
+					info->instances[i]->data[info->
+								 class_index].
+					ival;
 			}
 
 			write_arff (&output, arfffile);
