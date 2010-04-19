@@ -99,16 +99,19 @@ int main (int argc, char **argv)
 	FILE *arfffile;
 	int prune = 0;
 
+	/* Argument parsing */
 	struct arguments arguments;
 
-	arguments.algorithm = 0;
-	arguments.difference = 0;
-	arguments.class = "Class";
-	arguments.prune = "0";
-	arguments.arff_out = NULL;
+	arguments.algorithm = 0;	// Default to the P algorithm
+	arguments.difference = 0;	// Default to genotype difference metric
+	arguments.class = "Class";	// Default class name
+	arguments.prune = "0";	// Prune 0 attributes by default
+	arguments.arff_out = NULL;	// Do not write a new ARFF file by default
 
 	if (argp_parse (&argp, argc, argv, 0, 0, &arguments))
 		return 1;
+	/* End argument parsing */
+
 
 #ifdef NO_MPI
 	me = 0;
@@ -117,6 +120,7 @@ int main (int argc, char **argv)
 	MPI_Comm_rank (MPI_COMM_WORLD, &me);
 #endif
 
+	/* Verify we can write to our output files before doing work */
 	outfile = fopen (arguments.args[1], "w");
 	if (outfile == NULL) {
 		fprintf (stderr, "Could not open file for writing: %s\n",
@@ -124,6 +128,7 @@ int main (int argc, char **argv)
 		return 1;
 	}
 
+	/* Only check on the ARFF file if we're writing it */
 	if (arguments.arff_out != NULL) {
 		arfffile = fopen (arguments.arff_out, "w");
 		if (outfile == NULL) {
@@ -142,6 +147,9 @@ int main (int argc, char **argv)
 		return 1;
 	}
 
+	/* Now that we know how many attributes there are, we can determine how
+	 * many to prune, if we're pruning a percentage.
+	 */
 	if (arguments.prune[strlen (arguments.prune) - 1] == '%') {
 		prune = (int) ((atof (arguments.prune) *
 				info->num_attributes) / 100);
@@ -149,16 +157,14 @@ int main (int argc, char **argv)
 		prune = atoi (arguments.prune);
 	}
 
+	/* Don't let's be silly. */
 	if (prune >= info->num_attributes) {
 		fprintf (stderr,
 			 "Attempting to prune entire file. Not bothering to run Relief-F.\n");
 		return 1;
 	}
 
-	weights =
-		(double *) malloc_dbg (19,
-				       sizeof (double) *
-				       info->num_attributes);
+	weights = (double *) calloc (info->num_attributes, sizeof (double));
 
 	resetOptions ();
 	setSampleSize (-1);
@@ -170,12 +176,14 @@ int main (int argc, char **argv)
 
 	buildEvaluator (info, weights);
 	if (me == 0) {
+		/* The number of attributes retained includes neither the class
+		 * attribute nor the pruned attributes.
+		 */
 		int retained = info->num_attributes - 1 - prune;
 
-		int *tmp =
-			(int *) malloc_dbg (20,
-					    sizeof (int) *
-					    info->num_attributes);
+		/* Rank the attributes, but remove the class attribute. */
+		int *tmp = (int *) calloc (info->num_attributes,
+					   sizeof (int));
 		index_sort (tmp, weights, info->num_attributes);
 		indices =
 			remove_int (tmp, info->num_attributes,
@@ -187,6 +195,7 @@ int main (int argc, char **argv)
 		else
 			free (tmp);
 
+		/* We generate a two-columned CSV */
 		for (i = 0; i < retained; i++) {
 			fprintf (outfile, "%s,%.3f\n",
 				 info->attributes[indices[i]]->name,
@@ -200,26 +209,24 @@ int main (int argc, char **argv)
 		if (arfffile != NULL) {
 			arff_info_t output;
 
-			int flag = 0;
-
+			/* For the most part, we keep the same structures */
 			memcpy (&output, info, sizeof (arff_info_t));
+
+			/* The +1 is for the class attribute, which we ignored, earlier. */
 			output.num_attributes = retained + 1;
 			output.attributes =
 				(attr_info_t **) calloc (retained + 1,
 							 sizeof
 							 (attr_info_t));
 
-			/* We want to put in all but one "selected" attribute,
-			 * preserving the Class attribute for last.
+			/* We want to copy the retained attributes.
+			 *
+			 * Since these are more or less immutable, we don't need to
+			 * deeply copy these data.
 			 */
-			for (i = 0; i < retained + flag; i++) {
-				output.attributes[i - flag] =
+			for (i = 0; i < retained; i++)
+				output.attributes[i] =
 					info->attributes[indices[i]];
-
-				/* Skip over the class attribute, if we find it */
-				if (info->class_index == indices[i])
-					flag = 1;
-			}
 
 			output.attributes[retained] =
 				info->attributes[info->class_index];
@@ -228,6 +235,7 @@ int main (int argc, char **argv)
 				(instance_t **) calloc (info->num_instances,
 							sizeof (attr_info_t));
 
+			/* Populate the table, sorting attributes by rank */
 			for (i = 0; i < info->num_instances; i++) {
 				int j;
 				output.instances[i] =
@@ -240,16 +248,18 @@ int main (int argc, char **argv)
 
 				for (j = 0; j < retained; j++)
 					output.instances[i]->data[j].ival =
-						info->instances[i]->
-						data[indices[j]].ival;
+						info->
+						instances[i]->data[indices
+								   [j]].ival;
 
 				output.instances[i]->data[retained].ival =
-					info->instances[i]->data[info->
-								 class_index].
-					ival;
+					info->instances[i]->
+					data[info->class_index].ival;
 			}
 
 			write_arff (&output, arfffile);
+
+			/* Cleanup */
 			free (output.attributes);
 			for (i = 0; i < info->num_instances; i++) {
 				free (output.instances[i]->data);

@@ -1,3 +1,4 @@
+
 /*
  *    ReliefFAttributeEval.java
  *    Copyright (C) 1999 University of Waikato, Hamilton, New Zealand
@@ -484,8 +485,8 @@ void updateMinMax (instance_t * instance)
 					if (instance->data[j].fval >
 					    m_maxArray[j]) {
 						m_maxArray[j] =
-							instance->
-							data[j].fval;
+							instance->data[j].
+							fval;
 					}
 				}
 			}
@@ -505,8 +506,9 @@ double difference (int index, data_t * dat1, data_t * dat2)
 		if (m_difference == 0) {
 			return (dat1[index].ival != dat2[index].ival);
 		} else {
-			// This option is for when your nominal values differ by their distance
-			// in the value list. e.g. AA Aa aa
+			/* This option is for when your nominal values differ by their
+			 * distance in the value list. e.g. AA Aa aa
+			 */
 			return abs (dat1[index].ival - dat2[index].ival);
 		}
 	case ATTR_NUMERIC:
