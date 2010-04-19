@@ -206,7 +206,8 @@ int main (int argc, char **argv)
 		 * This is primarily useful if we are pruning, for instance, for
 		 * iterated Relief-F, or filtering by another ARFF-accepting program.
 		 */
-		if (arfffile != NULL) {
+/*		if (arfffile != NULL) { */
+		if (0) {
 			arff_info_t output;
 
 			/* For the most part, we keep the same structures */
