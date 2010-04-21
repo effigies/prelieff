@@ -164,7 +164,7 @@ int main (int argc, char **argv)
 		return 1;
 	}
 
-	weights = (double *) calloc (info->num_attributes, sizeof (double));
+	weights = calloc (info->num_attributes, sizeof (double));
 
 	resetOptions ();
 	setSampleSize (-1);
@@ -182,8 +182,7 @@ int main (int argc, char **argv)
 		int retained = info->num_attributes - 1 - prune;
 
 		/* Rank the attributes, but remove the class attribute. */
-		int *tmp = (int *) calloc (info->num_attributes,
-					   sizeof (int));
+		int *tmp = calloc (info->num_attributes, sizeof (int));
 		index_sort (tmp, weights, info->num_attributes);
 		indices =
 			remove_int (tmp, info->num_attributes,
@@ -215,7 +214,7 @@ int main (int argc, char **argv)
 			/* The +1 is for the class attribute, which we ignored, earlier. */
 			output.num_attributes = retained + 1;
 			output.attributes =
-				(attr_info_t **) calloc (retained + 1,
+				calloc (retained + 1,
 							 sizeof
 							 (attr_info_t));
 
@@ -241,7 +240,7 @@ int main (int argc, char **argv)
 				info->attributes[info->class_index];
 
 			output.instances =
-				(instance_t **) calloc (info->num_instances,
+				calloc (info->num_instances,
 							sizeof (instance_t
 								*));
 
@@ -259,7 +258,7 @@ int main (int argc, char **argv)
 				int j;
 
 				output.instances[i] =
-					(instance_t *) calloc (1,
+					calloc (1,
 							       sizeof
 							       (instance_t));
 
@@ -272,7 +271,7 @@ int main (int argc, char **argv)
 				}
 
 				output.instances[i]->data =
-					(data_t *) calloc (retained + 1,
+					calloc (retained + 1,
 							   sizeof (data_t));
 
 				if (output.instances[i] == NULL) {

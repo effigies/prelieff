@@ -16,6 +16,9 @@ $(EXECUTABLE): $(OBJECTS)
 nompi: CC=gcc
 nompi: CFLAGS+=-DNO_MPI
 nompi: all
+
+debug: CFLAGS+=-ggdb
+debug: nompi
 	
 clean:
 	rm *.o prelieff
