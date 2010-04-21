@@ -272,7 +272,7 @@ void write_arff (arff_info_t * info, FILE * out)
 		}
 	}
 
-	fwrite ("@DATA\n", 7, sizeof (char), out);
+	fwrite ("@DATA\n", 6, sizeof (char), out);
 	for (i = 0; i < info->num_instances; i++) {
 		for (j = 0; j < info->num_attributes; j++) {
 			switch (info->attributes[j]->type) {
