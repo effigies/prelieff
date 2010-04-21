@@ -485,8 +485,8 @@ void updateMinMax (instance_t * instance)
 					if (instance->data[j].fval >
 					    m_maxArray[j]) {
 						m_maxArray[j] =
-							instance->
-							data[j].fval;
+							instance->data[j].
+							fval;
 					}
 				}
 			}

@@ -245,7 +245,7 @@ void write_arff (arff_info_t * info, FILE * out)
 	nom_val_t *nom_val;
 	double val;
 
-	sprintf (buf, "@RELATION %s\n\n", info->relation_name);
+	sprintf (buf, "@RELATION %s\n", info->relation_name);
 	fwrite (buf, strlen (buf), sizeof (char), out);
 
 	for (i = 0; i < info->num_attributes; i++) {
@@ -272,7 +272,7 @@ void write_arff (arff_info_t * info, FILE * out)
 		}
 	}
 
-	fwrite ("\n@DATA\n", 7, sizeof (char), out);
+	fwrite ("@DATA\n", 7, sizeof (char), out);
 	for (i = 0; i < info->num_instances; i++) {
 		for (j = 0; j < info->num_attributes; j++) {
 			switch (info->attributes[j]->type) {
@@ -599,9 +599,8 @@ parse_state_t parse_data (token_t token, char *name, arff_info_t * info)
 			for (x = curr_attr->nom_info->first; x != NULL;
 			     x = x->next) {
 				if (!strcmp (name, x->name)) {
-					curr_instance->
-						data[curr_data++].ival =
-						x->val;
+					curr_instance->data[curr_data++].
+						ival = x->val;
 					DEBUGMSG (("  add nominal data, val = %s, index = %i\n", x->name, x->val));
 					break;
 				}

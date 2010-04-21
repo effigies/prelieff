@@ -40,6 +40,7 @@ int *remove_int (int *array, int len, int elem)
 	}
 
 	memcpy (ret, array, skip * sizeof (int));
-	memcpy (&ret[skip], &array[skip + 1], (len - skip - 1) * sizeof (int));
+	memcpy (&ret[skip], &array[skip + 1],
+		(len - skip - 1) * sizeof (int));
 	return ret;
 }

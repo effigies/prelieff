@@ -214,9 +214,7 @@ int main (int argc, char **argv)
 			/* The +1 is for the class attribute, which we ignored, earlier. */
 			output.num_attributes = retained + 1;
 			output.attributes =
-				calloc (retained + 1,
-							 sizeof
-							 (attr_info_t));
+				calloc (retained + 1, sizeof (attr_info_t));
 
 			if (output.attributes == NULL) {
 				fprintf (stderr,
@@ -241,8 +239,7 @@ int main (int argc, char **argv)
 
 			output.instances =
 				calloc (info->num_instances,
-							sizeof (instance_t
-								*));
+					sizeof (instance_t *));
 
 			if (output.instances == NULL) {
 				fprintf (stderr,
@@ -258,9 +255,7 @@ int main (int argc, char **argv)
 				int j;
 
 				output.instances[i] =
-					calloc (1,
-							       sizeof
-							       (instance_t));
+					calloc (1, sizeof (instance_t));
 
 				if (output.instances[i] == NULL) {
 					fprintf (stderr,
@@ -272,7 +267,7 @@ int main (int argc, char **argv)
 
 				output.instances[i]->data =
 					calloc (retained + 1,
-							   sizeof (data_t));
+						sizeof (data_t));
 
 				if (output.instances[i] == NULL) {
 					fprintf (stderr,
@@ -287,13 +282,13 @@ int main (int argc, char **argv)
 
 				for (j = 0; j < retained; j++)
 					output.instances[i]->data[j].ival =
-						info->instances[i]->
-						data[indices[j]].ival;
+						info->
+						instances[i]->data[indices
+								   [j]].ival;
 
 				output.instances[i]->data[retained].ival =
-					info->instances[i]->data[info->
-								 class_index].
-					ival;
+					info->instances[i]->
+					data[info->class_index].ival;
 			}
 
 			write_arff (&output, arfffile);
